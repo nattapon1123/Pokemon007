@@ -41,9 +41,8 @@ npm run dev
 
 ## 📸 Screenshots
 
-![หน้าแรก](screenshots/home.png)
-![หน้ารายละเอียด](screenshots/detail.png)
-![About](screenshots/about.png)
+<img width="1888" height="902" alt="Screenshot 2026-06-30 134731" src="https://github.com/user-attachments/assets/e16afe08-c39c-498e-adf5-f791139740a5" />
+
 
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
