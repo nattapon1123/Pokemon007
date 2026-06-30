@@ -41,6 +41,7 @@ npm run dev
 
 ## 📸 Screenshots
 
-![หน้าแรก](screenshots/home.png)
-![หน้ารายละเอียด](screenshots/detail.png)
-![About](screenshots/about.png)
+<img width="1907" height="914" alt="Screenshot 2026-06-30 134537" src="https://github.com/user-attachments/assets/32490998-8d0d-4776-b3bb-6e6f0d3dd8ee" />
+<img width="1900" height="909" alt="Screenshot 2026-06-30 134623" src="https://github.com/user-attachments/assets/1c4857ef-144d-439d-8fdc-6da345dc2c77" />
+<img width="1888" height="902" alt="Screenshot 2026-06-30 134731" src="https://github.com/user-attachments/assets/275a5e7a-83cb-48a9-9507-065ac6f1f4f9" />
+
