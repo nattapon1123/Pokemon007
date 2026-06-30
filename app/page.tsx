@@ -1,12 +1,11 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Typography,
   Container,
   Card,
   CardContent,
-  Avatar,
   Grid,
   CardActionArea,
   Box,
@@ -27,7 +26,8 @@ const LIMIT = 100;
 const TOTAL = 1351;
 const TOTAL_PAGES = Math.ceil(TOTAL / LIMIT);
 
-export default function Home() {
+// 1. ส่วนเนื้อหาที่ดึง Query String ย้ายมาไว้ตรงนี้
+function PokemonListContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const currentPage = Number(searchParams.get("page")) || 1;
@@ -79,6 +79,113 @@ export default function Home() {
   };
 
   return (
+    <>
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "50vh", flexDirection: "column", gap: 2 }}>
+          <CircularProgress size={80} />
+          <Typography color="text.secondary">กำลังโหลดข้อมูล...</Typography>
+        </Box>
+      ) : (
+        <>
+          <Grid container spacing={2}>
+            {pokemonData?.results.map((pokemon) => {
+              const pokemonId = pokemon.url.split("/")[6];
+              return (
+                <Grid size={{ xs: 6, sm: 4, md: 3, lg: 2 }} key={pokemon.name}>
+                  <Card
+                    sx={{
+                      borderRadius: 3,
+                      boxShadow: 2,
+                      transition: "transform 0.2s, box-shadow 0.2s",
+                      "&:hover": {
+                        transform: "translateY(-4px)",
+                        boxShadow: 6,
+                      },
+                    }}
+                  >
+                    <CardActionArea href={`/pokemon/${pokemon.name}`}>
+                      <CardContent sx={{ textAlign: "center", p: 2 }}>
+                        <Box
+                          component="img"
+                          src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`}
+                          alt={pokemon.name}
+                          sx={{ width: 80, height: 80 }}
+                        />
+                        <Chip
+                          label={`#${String(pokemonId).padStart(4, "0")}`}
+                          size="small"
+                          sx={{ mb: 0.5, fontSize: "0.7rem" }}
+                        />
+                        <Typography
+                          variant="body1"
+                          sx={{
+                            fontWeight: "bold",
+                            textTransform: "capitalize",
+                            fontSize: "0.9rem",
+                          }}
+                        >
+                          {pokemon.name}
+                        </Typography>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                </Grid>
+              );
+            })}
+          </Grid>
+
+          <Box
+            sx={{
+              display: "flex",
+              justify: "center",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 1,
+              my: 4,
+            }}
+          >
+            <Button
+              variant="contained"
+              onClick={() => setPage(Math.max(currentPage - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              &lt;
+            </Button>
+
+            {getPageNumbers().map((p, i) =>
+              p === "..." ? (
+                <Typography key={`dots-${i}`} sx={{ px: 1 }}>
+                  ...
+                </Typography>
+              ) : (
+                <Button
+                  key={p}
+                  variant={currentPage === p ? "contained" : "outlined"}
+                  onClick={() => setPage(p as number)}
+                  sx={{ minWidth: 40 }}
+                >
+                  {p}
+                </Button>
+              )
+            )}
+
+            <Button
+              variant="contained"
+              onClick={() => setPage(Math.min(currentPage + 1, TOTAL_PAGES))}
+              disabled={currentPage === TOTAL_PAGES}
+            >
+              &gt;
+            </Button>
+          </Box>
+        </>
+      )}
+    </>
+  );
+}
+
+// 2. หน้าหลักส่งออก ทำหน้าที่คลุมด้วย <Suspense>
+export default function Home() {
+  return (
     <Box sx={{ minHeight: "100vh", bgcolor: "#f5f5f5" }}>
       <Container maxWidth="xl" sx={{ py: 4 }}>
 
@@ -103,107 +210,18 @@ export default function Home() {
           </Typography>
         </Box>
 
-        {/* Loading */}
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "50vh", flexDirection: "column", gap: 2 }}>
-            <CircularProgress size={80} />
-            <Typography color="text.secondary">กำลังโหลดข้อมูล...</Typography>
-          </Box>
-        ) : (
-          <>
-            <Grid container spacing={2}>
-              {pokemonData?.results.map((pokemon) => {
-                const pokemonId = pokemon.url.split("/")[6];
-                return (
-                  <Grid size={{ xs: 6, sm: 4, md: 3, lg: 2 }} key={pokemon.name}>
-                    <Card
-                      sx={{
-                        borderRadius: 3,
-                        boxShadow: 2,
-                        transition: "transform 0.2s, box-shadow 0.2s",
-                        "&:hover": {
-                          transform: "translateY(-4px)",
-                          boxShadow: 6,
-                        },
-                      }}
-                    >
-                      <CardActionArea href={`/pokemon/${pokemon.name}`}>
-                        <CardContent sx={{ textAlign: "center", p: 2 }}>
-                          <Box
-                            component="img"
-                            src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pokemonId}.png`}
-                            alt={pokemon.name}
-                            sx={{ width: 80, height: 80 }}
-                          />
-                          <Chip
-                            label={`#${String(pokemonId).padStart(4, "0")}`}
-                            size="small"
-                            sx={{ mb: 0.5, fontSize: "0.7rem" }}
-                          />
-                          <Typography
-                            variant="body1"
-                            sx={{
-                              fontWeight: "bold",
-                              textTransform: "capitalize",
-                              fontSize: "0.9rem",
-                            }}
-                          >
-                            {pokemon.name}
-                          </Typography>
-                        </CardContent>
-                      </CardActionArea>
-                    </Card>
-                  </Grid>
-                );
-              })}
-            </Grid>
-
-            {/* Pagination */}
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                flexWrap: "wrap",
-                gap: 1,
-                my: 4,
-              }}
-            >
-              <Button
-                variant="contained"
-                onClick={() => setPage(Math.max(currentPage - 1, 1))}
-                disabled={currentPage === 1}
-              >
-                &lt;
-              </Button>
-
-              {getPageNumbers().map((p, i) =>
-                p === "..." ? (
-                  <Typography key={`dots-${i}`} sx={{ px: 1 }}>
-                    ...
-                  </Typography>
-                ) : (
-                  <Button
-                    key={p}
-                    variant={currentPage === p ? "contained" : "outlined"}
-                    onClick={() => setPage(p as number)}
-                    sx={{ minWidth: 40 }}
-                  >
-                    {p}
-                  </Button>
-                )
-              )}
-
-              <Button
-                variant="contained"
-                onClick={() => setPage(Math.min(currentPage + 1, TOTAL_PAGES))}
-                disabled={currentPage === TOTAL_PAGES}
-              >
-                &gt;
-              </Button>
+        {/* ครอบครอบข้อมูลตรงนี้ด้วย Suspense */}
+        <Suspense 
+          fallback={
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "50vh", flexDirection: "column", gap: 2 }}>
+              <CircularProgress size={80} />
+              <Typography color="text.secondary">กำลังเตรียมข้อมูลระบบ...</Typography>
             </Box>
-          </>
-        )}
+          }
+        >
+          <PokemonListContent />
+        </Suspense>
+
       </Container>
     </Box>
   );
